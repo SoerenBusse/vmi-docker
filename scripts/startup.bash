@@ -1,6 +1,4 @@
 #!/bin/bash
-echo "Hallo Welt!"
-
 # See: https://stackoverflow.com/questions/35800082/how-to-trap-err-when-using-set-e-in-bash
 set -eE
 
@@ -36,9 +34,10 @@ else
     DEBUG="false"
 fi
 
+EnableIPv6
+EnableForwarding
 ValidateHostNamespace
 MountOwnNamespace
-EnableForwarding
 SetupWireguard
 SetupTransferInterface
 AddRoutes

@@ -88,7 +88,7 @@
         {{ if eq .debug "true" }}
         // Set log level to debug if requested by user
         "severity": "DEBUG",
-        "debuglevel": 10
+        "debuglevel": 99
         {{ else }}
         "severity": "INFO"
         {{ end }}

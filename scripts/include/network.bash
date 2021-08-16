@@ -10,6 +10,14 @@ function MountOwnNamespace() {
     mount --bind /proc/1/ns/net /var/run/netns/self
 }
 
+function EnableIPv6() {
+    # We need to enable IPv6 manually inside the container
+    # When creating a container with network=none ipv6 is disabled by default
+    # See: https://github.com/moby/moby/issues/42748
+    LogInfo "Enable IPv6"
+    echo 0 >/proc/sys/net/ipv6/conf/all/disable_ipv6
+}
+
 function EnableForwarding() {
     # Enable forwarding for ipv4 and ipv6
     # The ipv4 settings are inherited from the main namespace, however not the ipv6 one
