@@ -18,7 +18,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: ghcr.io/SoerenBusse/vmi-docker
-          tags:
+          tags: |
             type=schedule
             type=edge,branch=master
             type=ref,event=branch
