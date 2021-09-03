@@ -38,6 +38,11 @@ function AddRoutes() {
     ip -6 route add unreachable "${WIREGUARD_ASSIGNED_SUBNET}"
 }
 
+function SaveWireguardInterfaceName() {
+    LogInfo "Save wireguard interface name to /run/wireguard-tunnel-name"
+    echo "wg-${WIREGUARD_INTERFACE_SUFFIX}" > /run/wireguard-tunnel-name
+}
+
 function SetupWireguard() {
     local interface_name
     interface_name="wg-${WIREGUARD_INTERFACE_SUFFIX}"
@@ -63,7 +68,8 @@ function SetupWireguard() {
     LogInfo "Endpoint: ${WIREGUARD_ENDPOINT}" "${interface_name}"
     LogInfo "Peer: ${WIREGUARD_PEER}" "${interface_name}"
 
-    # TODO: Support DNS for endpoint
+    # We need to lookup the IP address for an hostname in the main network namespace
+    # So we need to manually first check whether an IPv6 connection
 
     wg set "${interface_name}" \
         private-key <(GetSecretFromEnvironment WIREGUARD_PRIVATE_KEY) \
@@ -96,6 +102,14 @@ function SetupTransferInterface() {
 
     LogInfo "Set address to ${transfer_interface_address}" "${interface_name}"
     ip address add dev "${interface_name}" "${transfer_interface_address}"
+
+    LogInfo "Set link-local address to fe80::1" "${interface_name}"
+    ip address add dev "${interface_name}" fe80::1/64
+
+    # https://unix.stackexchange.com/questions/186415/link-local-ipv6-address-keeps-being-automatically-assigned
+    # https://www.systutorials.com/docs/linux/man/8-ip-link/
+    LogInfo "Disable automatic address generation" "${interface_name}"
+    ip link set dev "${interface_name}" addrgenmode none
 
     LogInfo "Activate interface" "${interface_name}"
     ip link set dev "${interface_name}" up

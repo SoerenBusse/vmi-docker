@@ -39,6 +39,7 @@ EnableForwarding
 ValidateHostNamespace
 MountOwnNamespace
 SetupWireguard
+SaveWireguardInterfaceName
 SetupTransferInterface
 AddRoutes
 
