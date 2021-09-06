@@ -18,11 +18,10 @@ function EnableIPv6() {
     echo 0 >/proc/sys/net/ipv6/conf/all/disable_ipv6
 }
 
-function EnableForwarding() {
+function EnableIPv6Forwarding() {
     # Enable forwarding for ipv4 and ipv6
     # The ipv4 settings are inherited from the main namespace, however not the ipv6 one
-    LogInfo "Enable packet forwarding for IPv4 and IPv6"
-    echo 1 >/proc/sys/net/ipv4/ip_forward
+    LogInfo "Enable packet forwarding for IPv6"
     echo 1 >/proc/sys/net/ipv6/conf/all/forwarding
 }
 

@@ -35,7 +35,7 @@ else
 fi
 
 EnableIPv6
-EnableForwarding
+EnableIPv6Forwarding
 ValidateHostNamespace
 MountOwnNamespace
 SetupWireguard
