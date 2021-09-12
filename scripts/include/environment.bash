@@ -1,7 +1,3 @@
-function GetSecretFromEnvironment() {
-    echo "${!1}"
-}
-
 function ValidateEnvironmentVariables() {
     # Check whether all required environment variables are set
     for required_env in "$@"; do

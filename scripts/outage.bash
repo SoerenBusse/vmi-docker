@@ -3,10 +3,9 @@ function DisableOutage() {
     echo "Removing blackhole route"
     ip -6 route delete blackhole default
 
-    # https://stackoverflow.com/questions/2439579/how-to-get-the-first-line-of-a-file-in-a-bash-script
     echo "Retrieving tunnel interface name"
     local wireguard_tunnel_name
-    read -r wireguard_tunnel_name </run/wireguard-tunnel-name
+    wireguard_tunnel_name=$(cat /run/wireguard-tunnel-name | head -n 1)
 
     echo "Adding default route"
     ip -6 route add default dev "${wireguard_tunnel_name}"

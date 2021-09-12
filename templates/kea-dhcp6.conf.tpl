@@ -23,25 +23,22 @@
       "hold-reclaimed-time": 432000
     },
     // Time until the client should send a DHCPv6 renew
-    // When the docker-container is restarted all installed routed using the hooks are discarded, so the devices behind the CPEs
-    // using the delegated prefix cannot reach the internet anymore. Because of this we're using a short renew-interval
-    // so the CPE sends a renew and the route will be installed without much downtime
-    "renew-timer": 600,
+    "renew-timer": 900,
     // Time interval when the client should send a rebind-request, when it doesn't get an answer to the renew-request
     // The rebind request will be send to all dhcpv6-servers on the network
-    "rebind-timer": 2700,
+    "rebind-timer": 1440,
     // The preferred lifetime of the DHCPv6 lease
     // It must be longer than the renew/rebind timer
-    "preferred-lifetime": 3600,
+    "preferred-lifetime": 1800,
     // The valid lifetime of the DHCPv6 lease
     // When expired all delegated prefixes and assigned addresses are marked as deprecated and aren't used anymore
-    "valid-lifetime": 4500,
+    "valid-lifetime": 14400,
 
     "subnet6": [
       {
         // The prefix from which all shorter prefixes are delegated
-        "subnet": "{{ .prefix }}/{{ .prefix_length }}",
-
+        "subnet": "{{ .assigned_prefix }}:/48",
+        rapid-commit": true,
         // Assign this subnet6 configuration an interface
         // If the server is listening on the link-local-address and receives a dhcpv6 message it cannot determine
         // which GUA subnet from the configuration to select. When setting an interface here, the server knows that this
@@ -49,16 +46,9 @@
         "interface": "{{ .interface }}",
         "pd-pools": [
           {
-            "prefix": "{{ .prefix }}",
-            "prefix-len": {{ .prefix_length }},
-            "delegated-len": {{ .delegation_length }}
-          }
-        ],
-        // Add additional options to the DHCPv6-server
-        "option-data": [
-          {
-            "name": "dns-servers",
-            "data": "{{ .nameserver }}"
+            "prefix": "{{ .assigned_prefix }}8000::",
+            "prefix-len": 49,
+            "delegated-len": 56
           }
         ]
       }

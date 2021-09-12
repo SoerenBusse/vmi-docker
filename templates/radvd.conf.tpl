@@ -6,23 +6,23 @@ interface {{ .interface }} {
     AdvRASolicitedUnicast on;
 
     # The maximum interval between two unsolicited router advertisements
-    MaxRtrAdvInterval {{ .max_ra_interval }};
+    MaxRtrAdvInterval 600;
 
     # The minimal interval between two unsolicited router advertisements
-    MinRtrAdvInterval {{ .min_ra_interval }};
+    MinRtrAdvInterval 200;
 
     # Enable the managed flag so the cpe sends a dhcpv6 prefix delegation request
     AdvManagedFlag on;
 
     # Advertise the maximum possible mtu for this access network
     # The mtu is reduced due to the use of network tunnels
-    AdvLinkMTU {{ .mtu }};
+    AdvLinkMTU 1280;
 
     # Advertise an prefix in this router-advertisement
-    prefix {{ .transfer_prefix }}/{{ .transfer_prefix_length }} {
+    prefix {{ .assigned_prefix }}1000::/64 {
         # Set the lifetime of the advertised prefix
-        AdvValidLifetime 86400;
-        AdvPreferredLifetime 14400;
+        AdvValidLifetime 14400;
+        AdvPreferredLifetime 1800;
 
         # When stopping radvd a router-advertisement with this prefix and a preferred lifetime of 0 is sent,
         # so all CPEs immediately deprecates the prefix.

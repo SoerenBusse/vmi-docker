@@ -14,17 +14,8 @@ ValidateEnvironmentVariables \
     WIREGUARD_PEER \
     WIREGUARD_ADDRESS \
     WIREGUARD_ENDPOINT \
-    WIREGUARD_MTU \
-    WIREGUARD_ASSIGNED_SUBNET \
-    ROUTER_ADVERTISEMENT_MAX_INTERVAL \
-    ROUTER_ADVERTISEMENT_MIN_INTERVAL \
-    TRANSFER_PREFIX \
-    TRANSFER_PREFIX_LENGTH \
-    TRANSFER_INTERFACE \
-    DHCPV6_PD_PREFIX \
-    DHCPV6_PD_PREFIX_LENGTH \
-    DHCPV6_PD_DELEGATION_LENGTH \
-    DHCPV6_PD_DELEGATION_LENGTH
+    ASSIGNED_PREFIX \
+    SUBSCRIBER_INTERFACE
 
 # Optional parameters with default value
 if [[ -n "${DEBUG}" ]]; then
@@ -37,8 +28,8 @@ fi
 EnableIPv6
 EnableIPv6Forwarding
 ValidateHostNamespace
-MountOwnNamespace
-SetupWireguard
+CreateWireGuardInterface
+ConfigureWireguardInterface
 SaveWireguardInterfaceName
 SetupTransferInterface
 AddRoutes

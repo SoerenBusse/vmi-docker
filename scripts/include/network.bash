@@ -4,12 +4,6 @@ function ValidateHostNamespace() {
     [[ -f /var/run/netns/host ]]
 }
 
-function MountOwnNamespace() {
-    mkdir -p /var/run/netns
-    touch /var/run/netns/self
-    mount --bind /proc/1/ns/net /var/run/netns/self
-}
-
 function EnableIPv6() {
     # We need to enable IPv6 manually inside the container
     # When creating a container with network=none ipv6 is disabled by default
@@ -25,28 +19,11 @@ function EnableIPv6Forwarding() {
     echo 1 >/proc/sys/net/ipv6/conf/all/forwarding
 }
 
-function AddRoutes() {
+function CreateWireGuardInterface() {
     local interface_name
-    interface_name="wg-${WIREGUARD_INTERFACE_SUFFIX}"
+    interface_name="tun-${WIREGUARD_INTERFACE_SUFFIX}"
 
-    # Add a default route to send all traffic inside the container through the wireguard tunnel
-    LogInfo "Set default route to ${interface_name}"
-    ip -6 route add default dev "${interface_name}"
-
-    LogInfo "Set unreachable route to prevent route loop"
-    ip -6 route add unreachable "${WIREGUARD_ASSIGNED_SUBNET}"
-}
-
-function SaveWireguardInterfaceName() {
-    LogInfo "Save wireguard interface name to /run/wireguard-tunnel-name"
-    echo "wg-${WIREGUARD_INTERFACE_SUFFIX}" > /run/wireguard-tunnel-name
-}
-
-function SetupWireguard() {
-    local interface_name
-    interface_name="wg-${WIREGUARD_INTERFACE_SUFFIX}"
-
-    LogInfo "Setup Wireguard tunnel" "${interface_name}"
+    LogInfo "Create and move wireguard interface" "${interface_name}"
 
     # Add interface to the birth-place network namespace
     # This is the place where the outer encrypted packets of the tunnel leaves the system towards the internet
@@ -54,39 +31,63 @@ function SetupWireguard() {
     LogInfo "Create wireguard interface in the host network namespace" "${interface_name}"
     ip netns exec host ip link add dev "${interface_name}" type wireguard
 
+    mkdir -p /var/run/netns
+    touch /var/run/netns/self
+    mount --bind /proc/1/ns/net /var/run/netns/self
+
     LogInfo "Move the wireguard interface to the container's network namespace" "${interface_name}"
     ip netns exec host ip link set "${interface_name}" netns self
+}
 
-    LogInfo "Set MTU to ${WIREGUARD_MTU}" "${interface_name}"
-    ip link set dev "${interface_name}" mtu "${WIREGUARD_MTU}"
+function ConfigureWireguardInterface() {
+    local interface_name
+    interface_name="tun-${WIREGUARD_INTERFACE_SUFFIX}"
 
-    LogInfo "Assign IP ${WIREGUARD_ADDRESS}" "${interface_name}"
-    ip address add dev "${interface_name}" "${WIREGUARD_ADDRESS}"
+    LogInfo "Setup Wireguard tunnel" "${interface_name}"
+
+    LogInfo "Set MTU to 1280" "${interface_name}"
+    ip link set dev "${interface_name}" mtu 1280
 
     LogInfo "Set wireguard configuration" "${interface_name}"
     LogInfo "Endpoint: ${WIREGUARD_ENDPOINT}" "${interface_name}"
     LogInfo "Peer: ${WIREGUARD_PEER}" "${interface_name}"
-
-    # We need to lookup the IP address for an hostname in the main network namespace
-    # So we need to manually first check whether an IPv6 connection
-
     wg set "${interface_name}" \
-        private-key <(GetSecretFromEnvironment WIREGUARD_PRIVATE_KEY) \
+        private-key <(echo "${WIREGUARD_PRIVATE_KEY}") \
         peer "${WIREGUARD_PEER}" \
         endpoint "${WIREGUARD_ENDPOINT}" \
         persistent-keepalive 25 \
         allowed-ips ::/0
 
+    LogInfo "Assign IP ${WIREGUARD_ADDRESS}" "${interface_name}"
+    ip address add dev "${interface_name}" "${WIREGUARD_ADDRESS}/128"
+
     LogInfo "Activate interface" "${interface_name}"
     ip link set dev "${interface_name}" up
+}
+
+function AddRoutes() {
+    local interface_name
+    interface_name="tun-${WIREGUARD_INTERFACE_SUFFIX}"
+
+    # Add a default route to send all traffic inside the container through the wireguard tunnel
+    LogInfo "Set default route to ${interface_name}"
+    ip -6 route add default dev "${interface_name}"
+
+    LogInfo "Set unreachable route to prevent route loop"
+    ip -6 route add unreachable "${ASSIGNED_PREFIX}:/48"
+}
+
+function SaveWireguardInterfaceName() {
+    LogInfo "Save wireguard interface name to /run/wireguard-tunnel-name"
+    echo "tun-${WIREGUARD_INTERFACE_SUFFIX}" > /run/wireguard-tunnel-name
 }
 
 function SetupTransferInterface() {
     local interface_name
     local transfer_interface_address
 
-    interface_name="${TRANSFER_INTERFACE}"
-    transfer_interface_address="${TRANSFER_PREFIX}1/${TRANSFER_PREFIX_LENGTH}"
+    interface_name="${SUBSCRIBER_INTERFACE}"
+    transfer_interface_address="${ASSIGNED_PREFIX}1000::1/64"
 
     LogInfo "Setup transfer interface" "${interface_name}"
 
@@ -127,12 +128,8 @@ function SetupRouterAdvertisementConfiguration() {
     mkdir -p /opt/vmi/conf
 
     gucci \
-        -s interface="${TRANSFER_INTERFACE}" \
-        -s min_ra_interval="${ROUTER_ADVERTISEMENT_MIN_INTERVAL}" \
-        -s max_ra_interval="${ROUTER_ADVERTISEMENT_MAX_INTERVAL}" \
-        -s mtu="${WIREGUARD_MTU}" \
-        -s transfer_prefix="${TRANSFER_PREFIX}" \
-        -s transfer_prefix_length="${TRANSFER_PREFIX_LENGTH}" \
+        -s interface="${SUBSCRIBER_INTERFACE}" \
+        -s assigned_prefix="${ASSIGNED_PREFIX}" \
         -s debug="${DEBUG}" \
         /opt/vmi/templates/radvd.conf.tpl >/opt/vmi/conf/radvd.conf
 }
@@ -142,11 +139,8 @@ function SetupKeaDHCPv6Configuration() {
     mkdir -p /opt/vmi/conf
 
     gucci \
-        -s interface="${TRANSFER_INTERFACE}" \
-        -s prefix="${DHCPV6_PD_PREFIX}" \
-        -s prefix_length="${DHCPV6_PD_PREFIX_LENGTH}" \
-        -s delegation_length="${DHCPV6_PD_DELEGATION_LENGTH}" \
-        -s nameserver="${DHCPV6_PD_NAMESERVER}" \
+        -s interface="${SUBSCRIBER_INTERFACE}" \
+        -s assigned_prefix="${ASSIGNED_PREFIX}" \
         -s debug="${DEBUG}" \
         /opt/vmi/templates/kea-dhcp6.conf.tpl >/opt/vmi/conf/kea-dhcp6.conf
 }
