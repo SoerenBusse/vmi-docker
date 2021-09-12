@@ -38,7 +38,7 @@
       {
         // The prefix from which all shorter prefixes are delegated
         "subnet": "{{ .assigned_prefix }}:/48",
-        rapid-commit": true,
+        "rapid-commit": true,
         // Assign this subnet6 configuration an interface
         // If the server is listening on the link-local-address and receives a dhcpv6 message it cannot determine
         // which GUA subnet from the configuration to select. When setting an interface here, the server knows that this
