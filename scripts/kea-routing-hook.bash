@@ -19,7 +19,7 @@ function AddCommittedLeaseRoute() {
     # else cancel the hook-script
     printenv
 
-    if [[ $QUERY6_TYPE != "REQUEST" && $QUERY_TYPE != "SOLICIT" ]]; then
+    if [[ $QUERY6_TYPE != "REQUEST" && $QUERY6_TYPE != "SOLICIT" ]]; then
       return
     fi
 
