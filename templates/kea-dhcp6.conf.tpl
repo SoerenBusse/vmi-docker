@@ -22,17 +22,6 @@
       // they might be shutdown for some days
       "hold-reclaimed-time": 432000
     },
-    // Time until the client should send a DHCPv6 renew
-    "renew-timer": 900,
-    // Time interval when the client should send a rebind-request, when it doesn't get an answer to the renew-request
-    // The rebind request will be send to all dhcpv6-servers on the network
-    "rebind-timer": 1440,
-    // The preferred lifetime of the DHCPv6 lease
-    // It must be longer than the renew/rebind timer
-    "preferred-lifetime": 1800,
-    // The valid lifetime of the DHCPv6 lease
-    // When expired all delegated prefixes and assigned addresses are marked as deprecated and aren't used anymore
-    "valid-lifetime": 14400,
 
     "subnet6": [
       {
@@ -50,7 +39,18 @@
             "prefix-len": 49,
             "delegated-len": 56
           }
-        ]
+        ],
+        // Time until the client should send a DHCPv6 renew
+        "renew-timer": 900,
+        // Time interval when the client should send a rebind-request, when it doesn't get an answer to the renew-request
+        // The rebind request will be send to all dhcpv6-servers on the network
+        "rebind-timer": 1440,
+        // The preferred lifetime of the DHCPv6 lease
+        // It must be longer than the renew/rebind timer
+        "preferred-lifetime": 1800,
+        // The valid lifetime of the DHCPv6 lease
+        // When expired all delegated prefixes and assigned addresses are marked as deprecated and aren't used anymore
+        "valid-lifetime": 14400
       }
     ],
     // Hooks hinzufügen
@@ -59,8 +59,7 @@
         {
             "library": "/usr/lib/x86_64-linux-gnu/kea/hooks/libdhcp_run_script.so",
             "parameters": {
-                "name": "/opt/vmi/scripts/kea-routing-hook.bash",
-                "sync": true
+                "name": "/opt/vmi/scripts/kea-routing-hook.bash"
             }
         }
     ],

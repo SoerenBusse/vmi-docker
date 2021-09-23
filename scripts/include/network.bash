@@ -84,10 +84,10 @@ function SaveWireguardInterfaceName() {
 
 function SetupTransferInterface() {
     local interface_name
-    local transfer_interface_address
+    local subscriber_gua
 
     interface_name="${SUBSCRIBER_INTERFACE}"
-    transfer_interface_address="${ASSIGNED_PREFIX}1000::1/64"
+    subscriber_gua="${ASSIGNED_PREFIX}1000::1/64"
 
     LogInfo "Setup transfer interface" "${interface_name}"
 
@@ -100,18 +100,18 @@ function SetupTransferInterface() {
     LogInfo "Move interface to docker namespace" "${interface_name}"
     ip netns exec host ip link set "${interface_name}" netns self
 
-    LogInfo "Set address to ${transfer_interface_address}" "${interface_name}"
-    ip address add dev "${interface_name}" "${transfer_interface_address}"
-
     LogInfo "Set link-local address to fe80::1" "${interface_name}"
     ip address add dev "${interface_name}" fe80::1/64
+
+    LogInfo "Set address to ${subscriber_gua}" "${interface_name}"
+    ip address add dev "${interface_name}" "${subscriber_gua}"
 
     # https://unix.stackexchange.com/questions/186415/link-local-ipv6-address-keeps-being-automatically-assigned
     # https://www.systutorials.com/docs/linux/man/8-ip-link/
     LogInfo "Disable automatic address generation" "${interface_name}"
     ip link set dev "${interface_name}" addrgenmode none
-
     LogInfo "Activate interface" "${interface_name}"
+
     ip link set dev "${interface_name}" up
 
     # We need to wait until the duplicate address detection has finished. This can be detected by checking if the interface
@@ -123,18 +123,17 @@ function SetupTransferInterface() {
     done
 }
 
-function SetupRouterAdvertisementConfiguration() {
+function ConfigureRouterAdvertisementDaemon() {
     LogInfo "Generate radvd.conf using template"
     mkdir -p /opt/vmi/conf
 
     gucci \
         -s interface="${SUBSCRIBER_INTERFACE}" \
         -s assigned_prefix="${ASSIGNED_PREFIX}" \
-        -s debug="${DEBUG}" \
         /opt/vmi/templates/radvd.conf.tpl >/opt/vmi/conf/radvd.conf
 }
 
-function SetupKeaDHCPv6Configuration() {
+function ConfigureKeaDHCPv6Server() {
     LogInfo "Generate kea-dhcp6.conf using template"
     mkdir -p /opt/vmi/conf
 

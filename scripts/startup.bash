@@ -34,8 +34,8 @@ SaveWireguardInterfaceName
 SetupTransferInterface
 AddRoutes
 
-SetupRouterAdvertisementConfiguration
-SetupKeaDHCPv6Configuration
+ConfigureRouterAdvertisementDaemon
+ConfigureKeaDHCPv6Server
 
 LogInfo "VMI startup completed"
 

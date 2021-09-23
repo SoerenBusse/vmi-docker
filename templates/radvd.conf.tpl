@@ -5,11 +5,14 @@ interface {{ .interface }} {
     # Send router-advertisements when explicitly requested by an router solicitation as unicast
     AdvRASolicitedUnicast on;
 
+    # The lifetime of the default-route installed on the cpe
+    AdvDefaultLifetime 1800;
+
     # The maximum interval between two unsolicited router advertisements
     MaxRtrAdvInterval 600;
 
     # The minimal interval between two unsolicited router advertisements
-    MinRtrAdvInterval 200;
+    MinRtrAdvInterval 198;
 
     # Enable the managed flag so the cpe sends a dhcpv6 prefix delegation request
     AdvManagedFlag on;
