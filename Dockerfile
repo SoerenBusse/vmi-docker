@@ -22,18 +22,18 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y isc-kea-dhcp6-server
 
+# Copy supervisor configuration
+COPY config /opt/vmi/conf
+
 # Install template engine gucci
 RUN curl -L https://github.com/noqcks/gucci/releases/download/1.4.0/gucci-v1.3.0-linux-amd64 -o /usr/local/bin/gucci && \
     chmod +x /usr/local/bin/gucci
 
-# Copy all scripts into the image
-COPY scripts /opt/vmi/scripts
-
 # Copy all templates into the image
 COPY templates /opt/vmi/templates
 
-# Copy supervisor configuration
-COPY config/supervisor.conf /opt/vmi/conf/supervisor.conf
+# Copy all scripts into the image
+COPY scripts /opt/vmi/scripts
 
 # Make all scripts in top-level-directory executable
 RUN chmod +x /opt/vmi/scripts/*.bash
