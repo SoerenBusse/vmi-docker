@@ -23,22 +23,13 @@ function AddCommittedLeaseRoute() {
       return
     fi
 
-    if [[ $LEASES6_AT0_TYPE != "IA_PD" ]]; then
-      return
-    fi
-
     echo "Install committed lease route"
 
     ip route add "${LEASES6_AT0_ADDRESS}/${LEASES6_AT0_PREFIX_LEN}" via "${QUERY6_REMOTE_ADDR}" dev "${QUERY6_IFACE_NAME}" >/dev/null 2>&1
 }
 
-function AddLeaseRoute() {
-    echo "Add lease route"
-
-    ip route add "${LEASE6_ADDRESS}/${LEASE6_PREFIX_LEN}" via "${QUERY6_REMOTE_ADDR}" dev "${QUERY6_IFACE_NAME}" >/dev/null 2>&1
-}
-
 function DeleteRoute() {
+    printenv
     echo "Delete lease route"
     ip route del "${LEASE6_ADDRESS}/${LEASE6_PREFIX_LEN}" >/dev/null 2>&1
 }
@@ -46,9 +37,6 @@ function DeleteRoute() {
 echo "Kea-Routing-Hook: Got request: ${1}"
 
 case "$1" in
-"lease6_renew" | "lease6_rebind")
-    AddLeaseRoute
-    ;;
 "leases6_committed")
     AddCommittedLeaseRoute
     ;;
