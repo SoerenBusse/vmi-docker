@@ -27,7 +27,7 @@ fi
 
 EnableIPv6
 EnableIPv6Forwarding
-ValidateHostNamespace
+ValidateInitNamespace
 CreateWireGuardInterface
 ConfigureWireguardInterface
 SaveWireguardInterfaceName

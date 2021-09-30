@@ -1,7 +1,10 @@
 #!/bin/bash
-function ValidateHostNamespace() {
-    # Check whether the bind mount for the host network namespace exists with the expected name
-    [[ -f /var/run/netns/host ]]
+function ValidateInitNamespace() {
+    # Check whether the bind mount for the init network namespace exists with the expected name
+    if [[ ! -f /var/run/netns/init  ]]; then
+        LogError "Missing bind mount /var/run/netns/init to init network namespace"
+        exit 1
+    fi
 }
 
 function EnableIPv6() {
@@ -28,15 +31,15 @@ function CreateWireGuardInterface() {
     # Add interface to the birth-place network namespace
     # This is the place where the outer encrypted packets of the tunnel leaves the system towards the internet
     # The interface will then be moved inside the container, so that the inner packets leaves the tunnel inside the container
-    LogInfo "Create wireguard interface in the host network namespace" "${interface_name}"
-    ip netns exec host ip link add dev "${interface_name}" type wireguard
+    LogInfo "Create wireguard interface in the init network namespace" "${interface_name}"
+    ip netns exec init ip link add dev "${interface_name}" type wireguard
 
     mkdir -p /var/run/netns
     touch /var/run/netns/self
     mount --bind /proc/1/ns/net /var/run/netns/self
 
     LogInfo "Move the wireguard interface to the container's network namespace" "${interface_name}"
-    ip netns exec host ip link set "${interface_name}" netns self
+    ip netns exec init ip link set "${interface_name}" netns self
 }
 
 function ConfigureWireguardInterface() {
@@ -91,14 +94,14 @@ function SetupTransferInterface() {
 
     LogInfo "Setup transfer interface" "${interface_name}"
 
-    # Check whether the real network interface exists on the host
-    if ! ip netns exec host ip link show dev "${interface_name}" >/dev/null 2>&1; then
-        LogError "Cannot find interface ${interface_name} on host network namespace" true
+    # Check whether the real network interface exists on the init
+    if ! ip netns exec init ip link show dev "${interface_name}" >/dev/null 2>&1; then
+        LogError "Cannot find interface ${interface_name} on init network namespace" true
     fi
 
     # Move the real network interface into the docker namespace
     LogInfo "Move interface to docker namespace" "${interface_name}"
-    ip netns exec host ip link set "${interface_name}" netns self
+    ip netns exec init ip link set "${interface_name}" netns self
 
     LogInfo "Set link-local address to fe80::1" "${interface_name}"
     ip address add dev "${interface_name}" fe80::1/64
