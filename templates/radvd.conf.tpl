@@ -14,9 +14,6 @@ interface {{ .interface }} {
     # The minimal interval between two unsolicited router advertisements
     MinRtrAdvInterval 198;
 
-    # Enable the managed flag so the cpe sends a dhcpv6 prefix delegation request
-    AdvManagedFlag on;
-
     # Advertise the maximum possible mtu for this access network
     # The mtu is reduced due to the use of network tunnels
     AdvLinkMTU 1280;
