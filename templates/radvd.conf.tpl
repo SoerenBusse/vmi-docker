@@ -18,6 +18,10 @@ interface {{ .interface }} {
     # The mtu is reduced due to the use of network tunnels
     AdvLinkMTU 1280;
 
+    # Enable other config flag, because we're using DHCPv6-PD
+    # and either the M-Flag or the O-Flag is required as stated in RFC7084
+    AdvOtherConfigFlag on;
+
     # Advertise an prefix in this router-advertisement
     prefix {{ .assigned_prefix }}1000::/64 {
         # Set the lifetime of the advertised prefix
