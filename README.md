@@ -34,14 +34,6 @@ Mount the init-Namespace from the docker-host inside the docker-container where 
 | WIREGUARD_PRIVATE_KEY             | <Base64 encoded key>        | Your own private key for the wireguard tunnel                                                           |
 | WIREGUARD_PEER                    | <Base64 public encoded key> | A public key of the wireguard tunnel peer                                                               |
 | WIREGUARD_ADDRESS                 | 2001:db8:0:0::2/64          | The ipv6 address inside the tunnel on your site (might be a transfer net)                               |
-| WIREGUARD_ENDPOINT                | 192.0.2.42:51820            | The endpoint of your wireguard tunnel with port. Might be IPv4 or IPv6                                  |
-| WIREGUARD_MTU                     | 1280                        | The mtu inside your wireguard-tunnel                                                                    |
-| WIREGUARD_ASSIGNED_SUBNET         | 2001:db8:ffff:0::/48        | The ipv6 subnet which is routed over the wireguard tunnel. The dhcpv6-pd server delegates /56 from this |
-| TRANSFER_PREFIX                   | 2001:db8:ffff:0::           | Prefix used for the transfer network between BNG and CPE                                                |
-| TRANSFER_PREFIX_LENGTH            | 64                          | Prefix length for the transfer network                                                                  |
-| ROUTER_ADVERTISEMENT_MAX_INTERVAL | 600                         | Max interval between two router advertisements                                                          |
-| ROUTER_ADVERTISEMENT_MIN_INTERVAL | 300                         | Min interval between two router advertisements                                                          |
-| DHCPV6_PD_PREFIX                  | 2001:db8:ffff:8000::        | Prefix from which the smaller DHCPv6 prefixes are delegateed                                            |
-| DHCPV6_PD_PREFIX_LENGTH           | 49                          | Prefix length of the DHCPV6_PD_PREFIX                                                                   |
-| DHCPV6_PD_DELEGATION_LENGTH       | 56                          | Prefix length which should be delegated to the CPE                                                      |
-| DHCPV6_PD_NAMESERVER              | 2001:4860:4860::8888        | DNS server which should be assigned to the CPE using DHCPv6                                             |
+| WIREGUARD_ENDPOINT                | 192.0.2.42:51820            | The endpoint of your wireguard tunnel with port. Might be IPv4 or IPv6. Using domains isn't supported yet, because of https://lists.zx2c4.com/pipermail/wireguard/2021-August/006955.html                                   |
+| ASSIGNED_PREFIX                   | 2001:db8:ffff:0::           | Prefix used for the transfer network between BNG and CPE                                                |
+| SUBSCRIBER_INTERFACE              | enp2s0           | The subscriber interface where the virtual internet connection should be deployed                                  | 
