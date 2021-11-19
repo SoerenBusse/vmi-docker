@@ -25,7 +25,7 @@ This is the reason the container needs to run as privileged and need this strang
 ## Volumes
 Mount the init-Namespace from the docker-host inside the docker-container where the `ip netns` expects it.
 
-`/proc/1/ns/net:/var/run/netns/host`
+`/proc/1/ns/net:/var/run/netns/init`
 
 ## Environment-Variables
 | Variable                          | Example value               | Description                                                                                             |
