@@ -8,20 +8,6 @@ If you start multiple instances of this docker-image with different wireguard tu
 ## Kernel requirements
 Your kernel needs to support Wireguard. It's recommended to use kernel >= 5.6 to don't fiddle about dkms.
 
-## Configure Docker Daemon
-You've to enable ipv6-support in the docker daemon. 
-Otherwise the sysctl `disable_ipv6` is enabled, which will prevent any IPv6 setup inside the container.
-This image doesn't use the default network bridge provided by docker, however the option `fixed-cidr-v6` is required so use whatever you like.
-
-Edit `/etc/docker/daemon.json`
-```json
-{
-    "ipv6": true,
-    "fixed-cidr-v6": "fd00:ffff::/64"
-}
-```
-Reload docker to activate the changes: `systemctl reload docker`
-
 ## Magic you better don't tell anybody
 This docker container does something strange using network namespaces.
 Wireguard supports to create a tunnel inside a birth-namespace (usually your docker-host) using the host's internet connection and move the wireguard interface, where the unencrypted packets leaving the tunnel inside the container. 
